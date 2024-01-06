@@ -1,0 +1,22 @@
+configuration:
+  server_api_key:
+    name: API key
+    description: Your Server API key used to access endpoints
+  mongo_userdb_login:
+    name: Mongo user name
+    description: Mongo user name used to access server data
+  mongo_userdb_pass:
+    name: Mongo user password
+    description: Mongo user password used to access server data
+  mongo_db_domain:
+    name: Mongo domain
+    description: Mongo database domain to connect
+  mongo_db_port:
+    name: Mongo port
+    description: Mongo database port
+  mongo_db_name:
+    name: Mongo database name
+    description: The name of database where all data stored
+  server_port:
+    name: Server port
+    description: Port to run server on
