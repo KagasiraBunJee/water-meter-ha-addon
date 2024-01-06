@@ -1,8 +1,9 @@
 name: "Water meter server"
 description: "Server stores images of my water mete esp32 cameras for futher processing"
-version: "0.2.0"
+version: "0.2.1"
 slug: "espcam-server"
 init: false
+panel_icon: mdi:image-filter-center-focus
 schema:
   server_api_key: "str?"
   server_port: "int?"
