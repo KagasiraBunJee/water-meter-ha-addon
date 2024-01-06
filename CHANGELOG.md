@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changelog file to keep track of changes.
 
+### Fixed
+
+- Typo in description.
+
 ### Changed
 
 - Changed default icon for addon.

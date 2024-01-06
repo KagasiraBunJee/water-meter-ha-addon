@@ -1,5 +1,5 @@
 name: "Water meter server"
-description: "Server stores images of my water mete esp32 cameras for futher processing"
+description: "Server stores images of my water meter esp32 cameras for futher processing"
 version: "0.2.1"
 slug: "espcam-server"
 init: false
