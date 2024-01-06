@@ -15,7 +15,8 @@ DBPORT=$(bashio::config 'mongo_db_port')
 DBNAME=$(bashio::config 'mongo_db_name')
 
 # apply mongo script in free access mode
-MONGO_RESULT=$(mongod --config mongo.conf --dbpath /data/mongodb --port 8084 --bind_ip_all --fork)
+MONGO_RESULT=$(mongod --config mongo.conf --dbpath /data/mongodb --port $DBPORT --bind_ip_all --fork)
+echo "$MONGO_RESULT"
 MONGO_PID=$(echo "$MONGO_RESULT" | grep -o 'forked process: [0-9]*' | awk '{print $NF}')
 mongosh --port 8084 --eval "let adminDB = db.getSiblingDB('admin');
                 let usersList = adminDB.getUsers();
