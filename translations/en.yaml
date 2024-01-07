@@ -13,10 +13,10 @@ configuration:
     description: Mongo database domain to connect
   mongo_db_port:
     name: Mongo port
-    description: Mongo database port
+    description: Mongo database port (must keep at sync with setings in port expose)
   mongo_db_name:
     name: Mongo database name
     description: The name of database where all data stored
   server_port:
     name: Server port
-    description: Port to run server on
+    description: Port to run server on (must keep at sync with setings in port expose)

@@ -2,20 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.3.0] - 2024-01-07
 
-## [0.2.10] - 2024-01-07
+### Added
+
+- Raspberry pi 4 support
+
+- Default settings for ports
+
+### Fixed
+
+- Build script
+
+## [0.2.10 - 0.2.12] - 2024-01-07
 
 ### Fixed
 
 - Installation crash
 
-## [0.2.9] - 2024-01-07
+## [0.2.3 - 0.2.9] - 2024-01-07
 
 ### Added
 
-- Raspberry pi 4 support
+- Raspberry pi 4 support (beta)
 
 ## [0.2.3] - 2024-01-07
 
