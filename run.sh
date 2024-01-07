@@ -2,7 +2,7 @@
 
 bashio::log.info "${message:="Hello World..."}"
 
-mkdir -p /data/mongodb #create persistent folder for mongodb
+mkdir /data/mongodb #create persistent folder for mongodb
 mkdir -p /data/server #create persistent folder for server
 mkdir -p /data/server/uploads #create persistent folder for server uploads
 
