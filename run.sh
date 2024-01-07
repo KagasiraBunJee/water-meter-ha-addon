@@ -1,8 +1,8 @@
 #!/usr/bin/with-contenv bashio
 
 bashio::log.info "${message:="Hello World..."}"
-
-mkdir /data/mongodb #create persistent folder for mongodb
+echo "hello"
+mkdir -p /data/mongodb #create persistent folder for mongodb
 mkdir -p /data/server #create persistent folder for server
 mkdir -p /data/server/uploads #create persistent folder for server uploads
 
@@ -17,7 +17,7 @@ DBNAME=$(bashio::config 'mongo_db_name')
 bashio::log.info "Start mongod service"
 # apply mongo script in free access mode
 MONGO_RESULT=$(mongod --config mongo.conf --dbpath /data/mongodb --port $DBPORT --fork)
-echo "$MONGO_RESULT"
+bashio::log.info "$MONGO_RESULT"
 MONGO_PID=$(echo "$MONGO_RESULT" | grep -o 'forked process: [0-9]*' | awk '{print $NF}')
 mongosh --port 8084 --eval "let adminDB = db.getSiblingDB('admin');
                 let usersList = adminDB.getUsers();
@@ -37,6 +37,7 @@ sleep 2
 kill -15 "$MONGO_PID" # stop mongo
 sleep 2
 
+bashio::log.info "Start secured mongod service"
 # run mongo in auth mode
 mongod --config mongo.conf --dbpath /data/mongodb --port 8084 --bind_ip_all --auth --fork
 
