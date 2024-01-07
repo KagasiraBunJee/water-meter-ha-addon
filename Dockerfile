@@ -31,7 +31,6 @@ RUN ARCH=$(uname -m) \
 RUN git clone https://github.com/KagasiraBunJee/espcam-photo-server.git server
 
 COPY . /
-COPY ./mongo-scripts/init-mongo.js ./
 COPY ./mongo-scripts/mongo.conf ./
 
 RUN chmod a+x /run.sh
