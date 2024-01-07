@@ -16,7 +16,7 @@ DBNAME=$(bashio::config 'mongo_db_name')
 
 bashio::log.info "Start mongod service"
 # apply mongo script in free access mode
-mongod --config mongo.conf --dbpath /data/mongodb --port $DBPORT --fork
+./mongod --config mongo.conf --dbpath /data/mongodb --port $DBPORT --fork
 #MONGO_RESULT=$(mongod --config mongo.conf --dbpath /data/mongodb --port $DBPORT --fork)
 #echo "$MONGO_RESULT"
 #MONGO_PID=$(echo "$MONGO_RESULT" | grep -o 'forked process: [0-9]*' | awk '{print $NF}')
