@@ -2,9 +2,10 @@
 
 bashio::log.info "${message:="Hello World..."}"
 echo "hello"
-mkdir -p /data/mongodb #create persistent folder for mongodb
-mkdir -p /data/server #create persistent folder for server
-mkdir -p /data/server/uploads #create persistent folder for server uploads
+mkdir -p /data/mongodb # create persistent folder for mongodb
+mkdir -p /data/server # create persistent folder for server
+mkdir -p /data/server/uploads # create persistent folder for server uploads
+mkdir -p /var/log/mongodb # create mongod logs dir
 
 SERVER_API_TOKEN=$(bashio::config 'server_api_key')
 SERVER_PORT=$(bashio::config 'server_port')
