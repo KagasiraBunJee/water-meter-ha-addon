@@ -14,7 +14,7 @@ RUN ARCH=$(uname -m) \
          # Install MongoDB for Raspberry Pi (ARM64)
          wget https://github.com/themattman/mongodb-raspberrypi-binaries/releases/download/r7.0.2-rpi-unofficial/mongodb.ce.pi.r7.0.2.tar.gz \
              && tar xzvf mongodb.ce.pi.r7.0.2.tar.gz \
-             && wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1n-0+deb11u5_arm64.deb \
+             && wget http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.1_1.1.1n-0+deb10u6_arm64.deb \
              && dpkg -i libssl1.1*.deb \
              && apt-get update \
              && apt-get install -y nodejs; \
