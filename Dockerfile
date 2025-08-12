@@ -29,7 +29,7 @@ RUN ARCH=$(uname -m) \
              && apt-get install -y mongodb-org nodejs; \
        fi
 
-RUN git clone --branch feat/dashboard-single-page --single-branch https://github.com/KagasiraBunJee/espcam-photo-server.git server
+RUN git clone https://github.com/KagasiraBunJee/espcam-photo-server.git server
 
 COPY . /
 COPY ./mongo-scripts/mongo.conf ./
