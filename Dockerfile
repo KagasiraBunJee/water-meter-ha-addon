@@ -1,4 +1,4 @@
-FROM ghcr.io/hassio-addons/ubuntu-base/aarch64:2fecaa0
+FROM ghcr.io/hassio-addons/ubuntu-base/aarch64:10.0.2
 
 WORKDIR /app
 
