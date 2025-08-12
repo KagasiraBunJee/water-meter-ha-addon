@@ -1,6 +1,6 @@
 name: "Water meter server"
 description: "Server stores images of my water meter esp32 cameras for futher processing"
-version: "0.3.1"
+version: "0.4.0"
 slug: "espcam-server"
 init: false
 schema:
@@ -16,9 +16,8 @@ options:
   mongo_db_port: 8084
 arch:
   - aarch64
-  - amd64
-startup: system
-host_network: true
+startup: services
 ports:
   8085/tcp: 8085 # server port
   8084/tcp: 8084 # mongodb port
+ingress: true

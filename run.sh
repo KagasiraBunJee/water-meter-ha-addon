@@ -54,4 +54,29 @@ DBDOMAIN=${DBDOMAIN}
 DBPORT=${DBPORT}
 EOF
 
+LOG_DIR="/var/log/nginx"
+ACCESS_LOG="$LOG_DIR/access.log"
+ERROR_LOG="$LOG_DIR/error.log"
+
+# Ensure log directory exists
+mkdir -p "$LOG_DIR"
+
+# Check if nginx is running
+if pgrep -x "nginx" > /dev/null; then
+    echo "nginx is already running"
+else
+    echo "Starting nginx..."
+    # Start nginx with custom log files
+    nginx -g "daemon off;" \
+        -c /etc/nginx/nginx.conf \
+        >"$ACCESS_LOG" 2>"$ERROR_LOG" &
+
+    if [ $? -eq 0 ]; then
+        echo "nginx started successfully"
+    else
+        echo "failed to start nginx — check $ERROR_LOG"
+        exit 1
+    fi
+fi
+
 sh /prepare-server.sh
