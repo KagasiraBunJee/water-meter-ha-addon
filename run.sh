@@ -42,7 +42,7 @@ sleep 2
 # run mongo in auth mode
 ./mongod --config mongo.conf --dbpath /data/mongodb --port 8084 --bind_ip_all --auth --fork
 
-cp -a server/. /data/server/
+cp -a /server/. /data/server/
 
 cat <<EOF >/data/server/.env
 API_TOKEN=${SERVER_API_TOKEN}

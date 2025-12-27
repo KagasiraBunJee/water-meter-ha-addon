@@ -1,0 +1,37 @@
+mixin device-card(device)
+  .device-card
+    .device-card-header(onclick=`viewDeviceImages('${device.deviceID}', '${device.name || 'Unnamed Device'}')`)
+      .device-info
+        h3= device.name || 'Unnamed Device'
+        p
+          strong Device ID:
+          |  #{device.deviceID}
+        p
+          strong IP:
+          |  #{device.ip || 'N/A'}
+        p
+          strong MAC:
+          |  #{device.mac || 'N/A'}
+      .device-stats
+        .stat
+          span.stat-number= device.imageCount
+          span.stat-label Images
+        .stat
+          span.stat-label Last Upload
+          span.stat-time= device.latestImage ? new Date(device.latestImage).toLocaleDateString() : 'Never'
+
+    .firmware-section(onclick="event.stopPropagation()")
+      h4 Firmware Upload
+      form.firmware-form(onsubmit=`uploadFirmware(event, '${device.deviceID}')`)
+        .form-group
+          label(for=`version-${device.deviceID}`) Version:
+          input.form-input(type="text", id=`version-${device.deviceID}`, name="version", required, placeholder="e.g., 1.0.0")
+        .form-group
+          label(for=`description-${device.deviceID}`) Description:
+          input.form-input(type="text", id=`description-${device.deviceID}`, name="description", placeholder="Optional description")
+        .form-group
+          label(for=`firmware-${device.deviceID}`) Firmware File (.bin):
+          input.form-input(type="file", id=`firmware-${device.deviceID}`, name="firmware", accept=".bin", required)
+        .form-actions
+          button.btn-upload(type="submit") Upload Firmware
+          span.upload-status(id=`status-${device.deviceID}`)

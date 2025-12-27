@@ -1,0 +1,7 @@
+include partials/device-card
+
+if devices && devices.length > 0
+  each device in devices
+    +device-card(device)
+else
+  .no-data No devices found

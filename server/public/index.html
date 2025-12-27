@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Camera Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ESP32 Camera Dashboard</h1>
+            <nav>
+                <div class="nav-links">
+                    <button class="nav-link active" onclick="showDevices()">Devices</button>
+                    <button class="nav-link" onclick="showAllImages()">All Images</button>
+                    <button class="nav-link" id="deviceViewBtn" onclick="showDevices()" style="display:none;"></button>
+                </div>
+                <button class="refresh-btn" onclick="refreshCurrentView()" title="Refresh">
+                    <span class="refresh-icon">⟳</span>
+                </button>
+            </nav>
+        </header>
+        
+        <main>
+            <div id="devicesView" class="view">
+                <div class="devices-grid" id="devicesGrid">
+                    <div class="loading">Loading devices...</div>
+                </div>
+            </div>
+            
+            <div id="allImagesView" class="view" style="display:none;">
+                <div class="images-grid" id="allImagesGrid">
+                    <div class="loading">Loading images...</div>
+                </div>
+            </div>
+            
+            <div id="deviceImagesView" class="view" style="display:none;">
+                <div class="images-grid" id="deviceImagesGrid">
+                    <div class="loading">Loading device images...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="modalImage" src="" alt="">
+            <div class="modal-info">
+                <h3 id="modalTitle"></h3>
+                <p id="modalDevice"></p>
+                <p id="modalDate"></p>
+                <a id="modalDownload" href="" target="_blank">Download Original</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentView = 'devices';
+        let currentDeviceID = null;
+        let baseUrl = '';
+        
+        function showView(viewName) {
+            document.querySelectorAll('.view').forEach(view => view.style.display = 'none');
+            document.getElementById(viewName + 'View').style.display = 'block';
+            
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            
+            if (viewName === 'devices') {
+                document.querySelector('button[onclick="showDevices()"]').classList.add('active');
+                document.getElementById('deviceViewBtn').style.display = 'none';
+            } else if (viewName === 'allImages') {
+                document.querySelector('button[onclick="showAllImages()"]').classList.add('active');
+                document.getElementById('deviceViewBtn').style.display = 'none';
+            } else if (viewName === 'deviceImages') {
+                document.getElementById('deviceViewBtn').style.display = 'inline-block';
+                document.getElementById('deviceViewBtn').classList.add('active');
+            }
+            
+            currentView = viewName;
+        }
+        
+        async function loadDevices() {
+            try {
+                const response = await fetch(`${baseUrl}/api/dashboard/devices`);
+                const devices = await response.json();
+                
+                const grid = document.getElementById('devicesGrid');
+                
+                if (devices.length === 0) {
+                    grid.innerHTML = '<div class="no-data">No devices found</div>';
+                    return;
+                }
+                
+                grid.innerHTML = devices.map(device => `
+                    <div class="device-card" onclick="viewDeviceImages('${device.deviceID}', '${device.name || 'Unnamed Device'}')">
+                        <div class="device-info">
+                            <h3>${device.name || 'Unnamed Device'}</h3>
+                            <p><strong>Device ID:</strong> ${device.deviceID}</p>
+                            <p><strong>IP:</strong> ${device.ip || 'N/A'}</p>
+                            <p><strong>MAC:</strong> ${device.mac || 'N/A'}</p>
+                        </div>
+                        <div class="device-stats">
+                            <div class="stat">
+                                <span class="stat-number">${device.imageCount}</span>
+                                <span class="stat-label">Images</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Last Upload</span>
+                                <span class="stat-time">${device.latestImage ? new Date(device.latestImage).toLocaleDateString() : 'Never'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('devicesGrid').innerHTML = '<div class="error">Failed to load devices</div>';
+            }
+        }
+        
+        async function loadAllImages() {
+            try {
+                const response = await fetch(`${baseUrl}/api/dashboard/images/all`);
+                const images = await response.json();
+                
+                const grid = document.getElementById('allImagesGrid');
+                
+                if (images.length === 0) {
+                    grid.innerHTML = '<div class="no-data">No images found</div>';
+                    return;
+                }
+                
+                grid.innerHTML = images.map(image => `
+                    <div class="image-card" onclick="openModal('${baseUrl}${image.url}', '${image.name}', '${image.deviceID}', '${new Date(image.created).toLocaleString()}')">
+                        <img src="${baseUrl}${image.url}" alt="${image.name}" loading="lazy">
+                        <div class="image-info">
+                            <div class="image-name">${image.name}</div>
+                            <div class="image-device">Device: ${image.deviceID}</div>
+                            <div class="image-date">${new Date(image.created).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('allImagesGrid').innerHTML = '<div class="error">Failed to load images</div>';
+            }
+        }
+        
+        async function loadDeviceImages(deviceID) {
+            try {
+                const response = await fetch(`${baseUrl}/api/dashboard/devices/${deviceID}/images`);
+                const images = await response.json();
+                
+                const grid = document.getElementById('deviceImagesGrid');
+                
+                if (images.length === 0) {
+                    grid.innerHTML = '<div class="no-data">No images found for this device</div>';
+                    return;
+                }
+                
+                grid.innerHTML = images.map(image => `
+                    <div class="image-card" onclick="openModal('${baseUrl}${image.url}', '${image.name}', '${deviceID}', '${new Date(image.created).toLocaleString()}')">
+                        <img src="${baseUrl}${image.url}" alt="${image.name}" loading="lazy">
+                        <div class="image-info">
+                            <div class="image-name">${image.name}</div>
+                            <div class="image-date">${new Date(image.created).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('deviceImagesGrid').innerHTML = '<div class="error">Failed to load device images</div>';
+            }
+        }
+        
+        function showDevices() {
+            showView('devices');
+            loadDevices();
+        }
+        
+        function showAllImages() {
+            showView('allImages');
+            loadAllImages();
+        }
+        
+        function viewDeviceImages(deviceID, deviceName) {
+            currentDeviceID = deviceID;
+            document.getElementById('deviceViewBtn').textContent = deviceName;
+            showView('deviceImages');
+            loadDeviceImages(deviceID);
+        }
+        
+        function openModal(imageUrl, imageName, deviceID, imageDate) {
+            document.getElementById('modalImage').src = imageUrl;
+            document.getElementById('modalTitle').textContent = imageName;
+            document.getElementById('modalDevice').textContent = `Device: ${deviceID}`;
+            document.getElementById('modalDate').textContent = `Date: ${imageDate}`;
+            document.getElementById('modalDownload').href = imageUrl;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+        
+        function refreshCurrentView() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            refreshBtn.classList.add('refreshing');
+            
+            if (currentView === 'devices') {
+                loadDevices().then(() => {
+                    refreshBtn.classList.remove('refreshing');
+                });
+            } else if (currentView === 'allImages') {
+                loadAllImages().then(() => {
+                    refreshBtn.classList.remove('refreshing');
+                });
+            } else if (currentView === 'deviceImages' && currentDeviceID) {
+                loadDeviceImages(currentDeviceID).then(() => {
+                    refreshBtn.classList.remove('refreshing');
+                });
+            } else {
+                refreshBtn.classList.remove('refreshing');
+            }
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
+        showDevices();
+    </script>
+</body>
+</html>
