@@ -114,7 +114,7 @@ export const firmware = (app: Application, authHandler: (req: Request, res: Resp
     });
 
     // Get latest firmware for a device (ESP32 checks for updates)
-    app.get('/api/devices/:deviceID/firmware/latest', async (req: Request, res: Response) => {
+    app.get('/api/devices/:deviceID/firmware/latest', authHandler, async (req: Request, res: Response) => {
         try {
             const deviceID = req.params.deviceID;
             const currentFirmware = await Firmware.findOne({ deviceID, status: 'current' });
@@ -142,8 +142,8 @@ export const firmware = (app: Application, authHandler: (req: Request, res: Resp
         }
     });
 
-    // Get current firmware info (same as latest, for clarity)
-    app.get('/api/devices/:deviceID/firmware/current', async (req: Request, res: Response) => {
+    // Get current firmware info (previous version for rollback)
+    app.get('/api/devices/:deviceID/firmware/current', authHandler, async (req: Request, res: Response) => {
         try {
             const deviceID = req.params.deviceID;
             const previousFirmware = await Firmware.findOne({ deviceID, status: 'previous' });
@@ -172,7 +172,7 @@ export const firmware = (app: Application, authHandler: (req: Request, res: Resp
     });
 
     // Get firmware list for a device
-    app.get('/api/devices/:deviceID/firmware', async (req: Request, res: Response) => {
+    app.get('/api/devices/:deviceID/firmware', authHandler, async (req: Request, res: Response) => {
         try {
             const deviceID = req.params.deviceID;
             const firmwares = await Firmware.find({ deviceID }).sort({ uploaded: -1 });

@@ -102,7 +102,10 @@ mongo_db_port: int?         # MongoDB port (default: 8084)
 ## Security Model
 
 ### Authentication Layers
-1. **API Token**: Server requires API key for endpoint access
+1. **API Token**: Server requires API key for all firmware and protected endpoints
+   - Token configured via Home Assistant add-on settings (`server_api_key`)
+   - Automatically passed to web UI frontend from `process.env.API_TOKEN`
+   - All firmware endpoints require `X-Auth-Token` header
 2. **MongoDB Auth**: Database user authentication enabled
 3. **Network Restriction**: Nginx allows only Home Assistant supervisor IP
 4. **Ingress Only**: No direct external access
@@ -111,6 +114,7 @@ mongo_db_port: int?         # MongoDB port (default: 8084)
 - All external traffic routes through Home Assistant ingress
 - IP whitelist: 172.30.32.2 (supervisor only)
 - MongoDB runs in authenticated mode after initialization
+- Web dashboard automatically uses configured API token (no user prompt required)
 
 ## Server Application
 
@@ -151,9 +155,10 @@ server/
 - ✅ Server-side rendered dashboard using Pug templates
 - ✅ **OTA Firmware Updates** with automatic version management
 - ✅ **Firmware Version Rotation** (keeps current + previous versions only)
-- ✅ Web-based firmware upload interface
+- ✅ Web-based firmware upload interface with automatic token handling
 - ✅ RESTful API with token authentication
 - ✅ Automatic directory creation for uploads and firmware
+- ✅ API token passed securely to frontend from configuration
 
 ## External Dependencies
 
@@ -246,6 +251,8 @@ server/
 
 ### Firmware Management
 
+**All firmware endpoints require authentication via X-Auth-Token header**
+
 #### Upload Firmware (Authenticated)
 ```http
 POST /api/devices/:deviceID/firmware/upload
@@ -256,11 +263,14 @@ Body:
 - version: string (required, e.g., "1.0.1")
 - description: string (optional)
 - firmware: file (required, .bin only, 10MB max)
+
+Note: Web UI automatically uses token from configuration
 ```
 
-#### Check for Updates (ESP32 OTA)
+#### Check for Updates (ESP32 OTA - Authenticated)
 ```http
 GET /api/devices/:deviceID/firmware/latest
+Headers: X-Auth-Token: <token>
 
 Response:
 {
@@ -270,9 +280,10 @@ Response:
 }
 ```
 
-#### Get Previous Version (Rollback)
+#### Get Previous Version (Rollback - Authenticated)
 ```http
 GET /api/devices/:deviceID/firmware/current
+Headers: X-Auth-Token: <token>
 
 Response:
 {
@@ -283,9 +294,9 @@ Response:
 ```
 
 #### Other Firmware Endpoints
-- `GET /api/devices/:deviceID/firmware` - List all firmware versions
+- `GET /api/devices/:deviceID/firmware` - List all firmware versions (authenticated)
 - `DELETE /api/devices/:deviceID/firmware/:firmwareId` - Delete firmware (authenticated)
-- `GET /firmware/:filename.bin` - Direct firmware file download (static)
+- `GET /firmware/:filename.bin` - Direct firmware file download (static, no auth)
 
 ## Database Collections
 
@@ -346,11 +357,13 @@ Upload v1.0.2 → current: v1.0.2, previous: v1.0.1 (v1.0.0 deleted)
 
 **ESP32 Integration Flow:**
 1. ESP32 boots up with firmware v1.0.0
-2. Periodically checks: `GET /api/devices/{id}/firmware/latest`
+2. Periodically checks: `GET /api/devices/{id}/firmware/latest` (with `X-Auth-Token` header)
 3. Compares returned version with current version
 4. If newer version available, downloads from URL
 5. Performs OTA update
-6. If update fails, can rollback to: `GET /api/devices/{id}/firmware/current`
+6. If update fails, can rollback to: `GET /api/devices/{id}/firmware/current` (with `X-Auth-Token` header)
+
+**Note:** ESP32 devices must include the API token in requests to firmware endpoints
 
 ## Testing with cURL
 
@@ -375,12 +388,14 @@ curl -X POST \
 
 ### Check Latest Firmware
 ```bash
-curl http://localhost:8085/api/devices/ESP32_001/firmware/latest
+curl -H "X-Auth-Token: your_token" \
+  http://localhost:8085/api/devices/ESP32_001/firmware/latest
 ```
 
 ### Get Previous Firmware (Rollback)
 ```bash
-curl http://localhost:8085/api/devices/ESP32_001/firmware/current
+curl -H "X-Auth-Token: your_token" \
+  http://localhost:8085/api/devices/ESP32_001/firmware/current
 ```
 
 ## Support & Documentation

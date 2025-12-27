@@ -43,6 +43,7 @@ html(lang="en")
       let currentView = 'devices';
       let currentDeviceID = null;
       let baseUrl = '#{baseUrl}';
+      let apiToken = '#{apiToken}';
 
       function showView(viewName) {
         document.querySelectorAll('.view').forEach(view => view.style.display = 'none');
@@ -167,17 +168,11 @@ html(lang="en")
           // Get form data
           const formData = new FormData(form);
 
-          // Get API token from environment or prompt user
-          const token = prompt('Please enter your API token:');
-          if (!token) {
-            throw new Error('API token is required');
-          }
-
-          // Upload firmware
+          // Upload firmware with API token from config
           const response = await fetch(`${baseUrl}/api/devices/${deviceID}/firmware/upload`, {
             method: 'POST',
             headers: {
-              'X-Auth-Token': token
+              'X-Auth-Token': apiToken
             },
             body: formData
           });
