@@ -1,0 +1,217 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title ESP32 Camera Dashboard
+    link(rel="stylesheet", href="style.css")
+  body
+    .container
+      header
+        h1 ESP32 Camera Dashboard
+        nav
+          .nav-links
+            button.nav-link.active(onclick="showDevices()") Devices
+            button.nav-link(onclick="showAllImages()") All Images
+            button#deviceViewBtn.nav-link(onclick="showDevices()", style="display:none;")
+          button.refresh-btn(onclick="refreshCurrentView()", title="Refresh")
+            span.refresh-icon ⟳
+
+      main
+        #devicesView.view
+          #devicesGrid.devices-grid
+            .loading Loading devices...
+
+        #allImagesView.view(style="display:none;")
+          #allImagesGrid.images-grid
+            .loading Loading images...
+
+        #deviceImagesView.view(style="display:none;")
+          #deviceImagesGrid.images-grid
+            .loading Loading device images...
+
+    #imageModal.modal(onclick="closeModal()")
+      .modal-content(onclick="event.stopPropagation()")
+        img#modalImage(src="", alt="")
+        .modal-info
+          h3#modalTitle
+          p#modalDevice
+          p#modalDate
+          a#modalDownload(href="", target="_blank") Download Original
+
+    script.
+      let currentView = 'devices';
+      let currentDeviceID = null;
+      let baseUrl = '#{baseUrl}';
+
+      function showView(viewName) {
+        document.querySelectorAll('.view').forEach(view => view.style.display = 'none');
+        document.getElementById(viewName + 'View').style.display = 'block';
+
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+        if (viewName === 'devices') {
+          document.querySelector('button[onclick="showDevices()"]').classList.add('active');
+          document.getElementById('deviceViewBtn').style.display = 'none';
+        } else if (viewName === 'allImages') {
+          document.querySelector('button[onclick="showAllImages()"]').classList.add('active');
+          document.getElementById('deviceViewBtn').style.display = 'none';
+        } else if (viewName === 'deviceImages') {
+          document.getElementById('deviceViewBtn').style.display = 'inline-block';
+          document.getElementById('deviceViewBtn').classList.add('active');
+        }
+
+        currentView = viewName;
+      }
+
+      async function loadDevices() {
+        try {
+          const response = await fetch(`${baseUrl}/api/dashboard/devices`, {
+            headers: { 'Accept': 'text/html' }
+          });
+          const html = await response.text();
+          document.getElementById('devicesGrid').innerHTML = html;
+        } catch (error) {
+          document.getElementById('devicesGrid').innerHTML = '<div class="error">Failed to load devices</div>';
+        }
+      }
+
+      async function loadAllImages() {
+        try {
+          const response = await fetch(`${baseUrl}/api/dashboard/images/all`, {
+            headers: { 'Accept': 'text/html' }
+          });
+          const html = await response.text();
+          document.getElementById('allImagesGrid').innerHTML = html;
+        } catch (error) {
+          document.getElementById('allImagesGrid').innerHTML = '<div class="error">Failed to load images</div>';
+        }
+      }
+
+      async function loadDeviceImages(deviceID) {
+        try {
+          const response = await fetch(`${baseUrl}/api/dashboard/devices/${deviceID}/images`, {
+            headers: { 'Accept': 'text/html' }
+          });
+          const html = await response.text();
+          document.getElementById('deviceImagesGrid').innerHTML = html;
+        } catch (error) {
+          document.getElementById('deviceImagesGrid').innerHTML = '<div class="error">Failed to load device images</div>';
+        }
+      }
+
+      function showDevices() {
+        showView('devices');
+        loadDevices();
+      }
+
+      function showAllImages() {
+        showView('allImages');
+        loadAllImages();
+      }
+
+      function viewDeviceImages(deviceID, deviceName) {
+        currentDeviceID = deviceID;
+        document.getElementById('deviceViewBtn').textContent = deviceName;
+        showView('deviceImages');
+        loadDeviceImages(deviceID);
+      }
+
+      function openModal(imageUrl, imageName, deviceID, imageDate) {
+        document.getElementById('modalImage').src = imageUrl;
+        document.getElementById('modalTitle').textContent = imageName;
+        document.getElementById('modalDevice').textContent = `Device: ${deviceID}`;
+        document.getElementById('modalDate').textContent = `Date: ${imageDate}`;
+        document.getElementById('modalDownload').href = imageUrl;
+        document.getElementById('imageModal').style.display = 'flex';
+      }
+
+      function closeModal() {
+        document.getElementById('imageModal').style.display = 'none';
+      }
+
+      function refreshCurrentView() {
+        const refreshBtn = document.querySelector('.refresh-btn');
+        refreshBtn.classList.add('refreshing');
+
+        if (currentView === 'devices') {
+          loadDevices().then(() => {
+            refreshBtn.classList.remove('refreshing');
+          });
+        } else if (currentView === 'allImages') {
+          loadAllImages().then(() => {
+            refreshBtn.classList.remove('refreshing');
+          });
+        } else if (currentView === 'deviceImages' && currentDeviceID) {
+          loadDeviceImages(currentDeviceID).then(() => {
+            refreshBtn.classList.remove('refreshing');
+          });
+        } else {
+          refreshBtn.classList.remove('refreshing');
+        }
+      }
+
+      async function uploadFirmware(event, deviceID) {
+        event.preventDefault();
+
+        const form = event.target;
+        const statusEl = document.getElementById(`status-${deviceID}`);
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        try {
+          // Disable submit button
+          submitBtn.disabled = true;
+          statusEl.textContent = 'Uploading...';
+          statusEl.className = 'upload-status uploading';
+
+          // Get form data
+          const formData = new FormData(form);
+
+          // Get API token from environment or prompt user
+          const token = prompt('Please enter your API token:');
+          if (!token) {
+            throw new Error('API token is required');
+          }
+
+          // Upload firmware
+          const response = await fetch(`${baseUrl}/api/devices/${deviceID}/firmware/upload`, {
+            method: 'POST',
+            headers: {
+              'X-Auth-Token': token
+            },
+            body: formData
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.error || 'Upload failed');
+          }
+
+          statusEl.textContent = `✓ Uploaded v${result.firmware.version}`;
+          statusEl.className = 'upload-status success';
+
+          // Reset form
+          form.reset();
+
+          // Clear success message after 3 seconds
+          setTimeout(() => {
+            statusEl.textContent = '';
+            statusEl.className = 'upload-status';
+          }, 3000);
+
+        } catch (error) {
+          statusEl.textContent = `✗ ${error.message}`;
+          statusEl.className = 'upload-status error';
+        } finally {
+          submitBtn.disabled = false;
+        }
+      }
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeModal();
+        }
+      });
+
+      showDevices();

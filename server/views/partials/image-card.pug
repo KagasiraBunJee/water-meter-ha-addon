@@ -1,0 +1,8 @@
+mixin image-card(image, baseUrl, showDevice)
+  .image-card(onclick=`openModal('${baseUrl}${image.url}', '${image.name}', '${image.deviceID}', '${new Date(image.created).toLocaleString()}')`)
+    img(src=`${baseUrl}${image.url}`, alt=image.name, loading="lazy")
+    .image-info
+      .image-name= image.name
+      if showDevice
+        .image-device Device: #{image.deviceID}
+      .image-date= new Date(image.created).toLocaleString()
