@@ -49,7 +49,10 @@ const setup = async () => {
         const host = req.get('host');
         const baseUrl = `${protocol}://${host}:${serverPort}`;
 
-        res.render('index', { baseUrl });
+        res.render('index', {
+            baseUrl,
+            apiToken: process.env.API_TOKEN
+        });
     });
 
     app.use(express.static('public'));
