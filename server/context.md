@@ -504,19 +504,20 @@ curl -X POST \
 ---
 
 ## Documentation Last Updated
-Date: 2025-12-27
-Session: Template migration + Firmware upload system implementation
+Date: 2026-01-26
+Session: HTTPS/Ingress compatibility fix
 
 ---
 
 ## Important Notes for Next Session
 
-1. **Firmware URLs:** The `/firmware/latest` endpoint returns absolute URLs that ESP32 can download directly
-2. **Version Format:** No specific version format enforced - use semantic versioning (e.g., "1.0.1")
-3. **API Token:** Must be set in `.env` as `API_TOKEN` for authenticated endpoints
-4. **Binary Uploads:** Images work correctly - `express.raw()` handles Buffer data for `fs.appendFileSync()`
-5. **Pug Templates:** All dashboard views now use server-side rendering with Pug mixins
-6. **Automatic Cleanup:** Old firmware versions are automatically deleted when new versions are uploaded
+1. **HTTPS/Ingress Support:** Uses `X-Ingress-Path` header for Home Assistant ingress and `X-Forwarded-Proto` for protocol detection behind reverse proxies
+2. **Firmware URLs:** The `/firmware/latest` endpoint returns absolute URLs that ESP32 can download directly
+3. **Version Format:** No specific version format enforced - use semantic versioning (e.g., "1.0.1")
+4. **API Token:** Must be set in `.env` as `API_TOKEN` for authenticated endpoints
+5. **Binary Uploads:** Images work correctly - `express.raw()` handles Buffer data for `fs.appendFileSync()`
+6. **Pug Templates:** All dashboard views now use server-side rendering with Pug mixins
+7. **Automatic Cleanup:** Old firmware versions are automatically deleted when new versions are uploaded
 
 ## Quick Reference - File Locations
 

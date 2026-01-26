@@ -127,10 +127,10 @@ export const firmware = (app: Application, authHandler: (req: Request, res: Resp
                 });
             }
 
-            const protocol = req.protocol;
+            // Use X-Forwarded-Proto if behind reverse proxy (Nginx/Cloudflare), otherwise use req.protocol
+            const protocol = req.get('X-Forwarded-Proto') || req.protocol;
             const host = req.get('host');
-            const baseUrl = `${protocol}://${host}`;
-            const firmwareUrl = `${baseUrl}/firmware/${currentFirmware.filename}`;
+            const firmwareUrl = `${protocol}://${host}/firmware/${currentFirmware.filename}`;
 
             res.json({
                 version: currentFirmware.version,
@@ -156,10 +156,10 @@ export const firmware = (app: Application, authHandler: (req: Request, res: Resp
                 });
             }
 
-            const protocol = req.protocol;
+            // Use X-Forwarded-Proto if behind reverse proxy (Nginx/Cloudflare), otherwise use req.protocol
+            const protocol = req.get('X-Forwarded-Proto') || req.protocol;
             const host = req.get('host');
-            const baseUrl = `${protocol}://${host}`;
-            const firmwareUrl = `${baseUrl}/firmware/${previousFirmware.filename}`;
+            const firmwareUrl = `${protocol}://${host}/firmware/${previousFirmware.filename}`;
 
             res.json({
                 version: previousFirmware.version,
