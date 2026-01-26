@@ -57,9 +57,8 @@ export const dashboard = (app: Application) => {
 
             // Check if request wants HTML or JSON
             if (req.headers.accept?.includes('text/html')) {
-                const protocol = req.protocol;
-                const host = req.get('host');
-                const baseUrl = `${protocol}://${host}`;
+                // Use X-Ingress-Path if behind Home Assistant ingress
+                const baseUrl = req.get('X-Ingress-Path') || '';
                 res.render('device-images-grid', { images: imagesWithUrls, baseUrl });
             } else {
                 res.json(imagesWithUrls);
@@ -85,9 +84,8 @@ export const dashboard = (app: Application) => {
 
             // Check if request wants HTML or JSON
             if (req.headers.accept?.includes('text/html')) {
-                const protocol = req.protocol;
-                const host = req.get('host');
-                const baseUrl = `${protocol}://${host}`;
+                // Use X-Ingress-Path if behind Home Assistant ingress
+                const baseUrl = req.get('X-Ingress-Path') || '';
                 res.render('all-images-grid', { images: imagesWithUrls, baseUrl });
             } else {
                 res.json(imagesWithUrls);

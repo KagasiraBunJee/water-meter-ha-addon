@@ -45,10 +45,8 @@ const setup = async () => {
     app.use(express.raw({ limit: '100MB' }));
 
     app.get('/', (req: Request, res: Response) => {
-        const protocol = req.protocol;
-        const host = req.get('host');
-        const baseUrl = `${protocol}://${host}:${serverPort}`;
-
+        // Use X-Ingress-Path if behind Home Assistant ingress, otherwise empty for relative paths
+        const baseUrl = req.get('X-Ingress-Path') || '';
         res.render('index', {
             baseUrl,
             apiToken: process.env.API_TOKEN
