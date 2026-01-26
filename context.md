@@ -3,7 +3,7 @@
 ## Project Overview
 Home Assistant Add-on that provides a server to store images from ESP32 cameras for water meter monitoring. Packages MongoDB and a Node.js server together in a Docker container.
 
-**Version**: 0.5.3
+**Version**: 0.5.4
 **Slug**: espcam-server
 **Architecture**: aarch64 (Raspberry Pi 4)
 **Repository**: https://github.com/KagasiraBunJee/water-meter-ha-addon
@@ -187,11 +187,12 @@ server/
 
 ## Changelog Highlights
 
-### v0.5.3 (Current)
+### v0.5.4 (Current)
 - Fixed mixed content error when accessing via HTTPS (Cloudflare tunnel)
 - Added X-Ingress-Path header support for Home Assistant ingress
 - Fixed protocol detection using X-Forwarded-Proto for reverse proxies
 - Dashboard and images now work correctly via both HTTP and HTTPS
+- Fixed 413 Content Too Large error - added Nginx client_max_body_size 100M
 
 ### v0.4.1
 - Ingress support added

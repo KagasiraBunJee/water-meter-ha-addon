@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.3] - 2026-01-26
+## [0.5.4] - 2026-01-26
 
 ### Fixed
 
@@ -10,67 +10,4 @@ All notable changes to this project will be documented in this file.
 - Added support for Home Assistant ingress with X-Ingress-Path header
 - Fixed protocol detection using X-Forwarded-Proto header for reverse proxies
 - Dashboard and image URLs now work correctly via both HTTP and HTTPS access
-
-## [0.3.0] - 2024-01-07
-
-### Added
-
-- Raspberry pi 4 support
-
-- Default settings for ports
-
-### Fixed
-
-- Build script
-
-## [0.2.10 - 0.2.12] - 2024-01-07
-
-### Fixed
-
-- Installation crash
-
-## [0.2.3 - 0.2.9] - 2024-01-07
-
-### Added
-
-- Raspberry pi 4 support (beta)
-
-## [0.2.3] - 2024-01-07
-
-### Added
-
-- Logs for mongodb start.
-
-### Fixed
-
-- Set custom port for mongod
-
-## [0.2.2] - 2024-01-07
-
-### Changed
-
-- Changed default icon for addon.
-
-## [0.2.1] - 2024-01-07
-
-### Added
-
-- Changelog file to keep track of changes.
-
-### Fixed
-
-- Typo in description.
-
-### Changed
-
-- Changed default icon for addon.
-
-## [0.2.0] - 2024-01-06
-
-### Added
-
-- Added endpoint to server to get latest photo from esp32 cam by device id.
-
-### Fixed
-
-- Creating `uploads` directory for files if doesn't exists.
+- Fixed 413 Content Too Large error by adding Nginx client_max_body_size (100MB)
